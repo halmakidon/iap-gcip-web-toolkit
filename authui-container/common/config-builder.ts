@@ -203,6 +203,13 @@ const VALIDATION_TREE: validators.ValidationTree = {
                       }
                     },
                   },
+                  signInMethod: {
+                    validator: (value: any, key: string) => {
+                      if (value !== 'emailLink' && value !== 'password') {
+                        throw new Error(`"${key}" should be either "emailLink" or "password".`);
+                      }
+                    },
+                  },
                   hd: {
                     validator: (value: any, key: string) => {
                       // Regexp is not an allowed JSON field. Limit to domains.
