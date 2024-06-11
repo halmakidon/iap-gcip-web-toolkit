@@ -84,6 +84,7 @@ export class SignInUi {
         }
         this.setCustomStyleSheet(configs);
         const config = this.generateFirebaseUiHandlerConfig(configs);
+        this.setEmailLinkCallback(configs);
         // This will handle the underlying handshake for sign-in, sign-out,
         // token refresh, safe redirect to callback URL, etc.
         const handler = new firebaseui.auth.FirebaseUiHandler(
@@ -122,6 +123,34 @@ export class SignInUi {
       if (configs.hasOwnProperty(apiKey) && configs[apiKey].styleUrl) {
         setStyleSheet(document, configs[apiKey].styleUrl);
         break;
+      }
+    }
+  }
+
+  /**
+   * Sets emailLinkSignIn callback
+   * @param configs The loaded configuration from /config.
+   */
+  private setEmailLinkCallback(configs) {
+    for (const apiKey in configs) {
+      if (!configs.hasOwnProperty(apiKey) || !configs[apiKey].tenants) {
+        continue;
+      }
+      const tenants = configs[apiKey].tenants
+      for (const tenantId in tenants) {
+        if (!tenants.hasOwnProperty(tenantId) || !tenants[tenantId].signInOptions) {
+          continue;
+        }
+        const tenant = tenants[tenantId];
+        for (const signInOption of tenant.signInOptions) {
+          if (signInOption.providerId === 'password' && signInOption.signInMethod === 'emailLink') {
+            signInOption.emailLinkSignIn = () => {
+              return {
+                handleCodeInApp: true,
+              };
+            };
+          }
+        }
       }
     }
   }
